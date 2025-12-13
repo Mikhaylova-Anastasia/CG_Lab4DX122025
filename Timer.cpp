@@ -1,73 +1,86 @@
+// Timer.cpp
 #include "Timer.h"
-#include <windows.h>
 
-Timer::Timer()
-    : m_SecondsPerCount(0.0), m_DeltaTime(-1.0), m_BaseTime(0),
-    m_PausedTime(0), m_PrevTime(0), m_CurrTime(0), m_Stopped(false) {
-    __int64 countsPerSec;
+GameTimer::GameTimer()
+{
+    __int64 countsPerSec = 0;
     QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
-    m_SecondsPerCount = 1.0 / (double)countsPerSec;
+    mSecondsPerCount = 1.0 / (double)countsPerSec;
+    mDeltaTime = 0.0;
+
+    mBaseTime = 0;
+    mPausedTime = 0;
+    mStopTime = 0;
+    mPrevTime = 0;
+    mCurrTime = 0;
+    mStopped = false;
 }
 
-float Timer::TotalTime() const {
-    if (m_Stopped) {
-        return (float)(((m_StopTime - m_PausedTime) - m_BaseTime) * m_SecondsPerCount);
-    }
-    else {
-        return (float)(((m_CurrTime - m_PausedTime) - m_BaseTime) * m_SecondsPerCount);
-    }
+float GameTimer::TotalTime() const
+{
+    if (mStopped)
+        return (float)(((mStopTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
+    else
+        return (float)(((mCurrTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
 }
 
-float Timer::DeltaTime() const {
-    return (float)m_DeltaTime;
+float GameTimer::DeltaTime() const
+{
+    return (float)mDeltaTime;
 }
 
-void Timer::Reset() {
+void GameTimer::Reset()
+{
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 
-    m_BaseTime = currTime;
-    m_PrevTime = currTime;
-    m_StopTime = 0;
-    m_Stopped = false;
+    mBaseTime = currTime;
+    mPrevTime = currTime;
+    mStopTime = 0;
+    mStopped = false;
+    mPausedTime = 0;
 }
 
-void Timer::Start() {
+void GameTimer::Start()
+{
     __int64 startTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
 
-    if (m_Stopped) {
-        m_PausedTime += (startTime - m_StopTime);
-        m_PrevTime = startTime;
-        m_StopTime = 0;
-        m_Stopped = false;
+    if (mStopped)
+    {
+        mPausedTime += (startTime - mStopTime);
+        mPrevTime = startTime;
+        mStopTime = 0;
+        mStopped = false;
     }
 }
 
-void Timer::Stop() {
-    if (!m_Stopped) {
+void GameTimer::Stop()
+{
+    if (!mStopped)
+    {
         __int64 currTime;
         QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-
-        m_StopTime = currTime;
-        m_Stopped = true;
+        mStopTime = currTime;
+        mStopped = true;
     }
 }
 
-void Timer::Tick() {
-    if (m_Stopped) {
-        m_DeltaTime = 0.0;
+void GameTimer::Tick()
+{
+    if (mStopped)
+    {
+        mDeltaTime = 0.0;
         return;
     }
 
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-    m_CurrTime = currTime;
+    mCurrTime = currTime;
 
-    m_DeltaTime = (m_CurrTime - m_PrevTime) * m_SecondsPerCount;
-    m_PrevTime = m_CurrTime;
+    mDeltaTime = (mCurrTime - mPrevTime) * mSecondsPerCount;
+    mPrevTime = mCurrTime;
 
-    if (m_DeltaTime < 0.0) {
-        m_DeltaTime = 0.0;
-    }
+    if (mDeltaTime < 0.0)
+        mDeltaTime = 0.0;
 }
