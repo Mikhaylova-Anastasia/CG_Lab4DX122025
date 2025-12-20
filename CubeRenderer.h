@@ -36,7 +36,7 @@ public:
     ID3D12PipelineState* GetPSO() const { return mPSO.Get(); }
 
 private:
-    void BuildCubeGeometry();
+    void BuildCubeGeometry();     
     void BuildConstantBuffer();
     void BuildRootSignature();
 
@@ -51,8 +51,12 @@ private:
 
     ComPtr<ID3D12Resource> mVertexBuffer;
     ComPtr<ID3D12Resource> mIndexBuffer;
-    ComPtr<ID3D12Resource> mConstantBuffer;
 
+    
+    ComPtr<ID3D12Resource> mVBUpload;
+    ComPtr<ID3D12Resource> mIBUpload;
+
+    ComPtr<ID3D12Resource> mConstantBuffer;
     ComPtr<ID3D12Resource> mConstantUploadBuffer;
 
     D3D12_VERTEX_BUFFER_VIEW mVBV = {};
@@ -67,12 +71,12 @@ private:
 
     XMFLOAT4X4 mProj;
 
-    
+    // Camera
     XMFLOAT3 mCameraPos = { 0.0f, 2.0f, -5.0f };
     float mYaw = 0.0f;
     float mPitch = 0.0f;
 
-   
+    // Object rotation
     float mCubeYaw = 0.0f;
     float mCubePitch = 0.0f;
 };
